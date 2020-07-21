@@ -8,6 +8,8 @@ Milestones:
 ## Part 1: send data to one dataset within one team
 Does it even work? Does Shelby even know how to get data into Honeycomb?
 
-- [ ] initialize Libhoney
-- [ ] add dataset name
-- [ ] add API key from env vars
+- [x] initialize Libhoney
+- [x] add dataset name
+- [x] add API key from env vars
+- [x] generate an event
+- [x] watch my event arrive in Honeycomb
