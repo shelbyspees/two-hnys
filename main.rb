@@ -8,8 +8,8 @@ require_relative 'splithoney'
 puts 'we are a go'
 
 Dotenv.load
-splithoney = SplitHoney::Client.new(writekey: ENV['HONEYCOMB_WRITE_KEY_1'], dataset: 'two-hnys-1')
 
+splithoney = SplitHoney::Client.new()
 builder = splithoney.builder({'builder': true})
 
 event = builder.event()
