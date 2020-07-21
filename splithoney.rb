@@ -6,7 +6,7 @@ module SplitHoney
     def initialize(**args)
       super # grab everything that happens in NullClient#initialize
       client1 = {writekey: ENV['HONEYCOMB_WRITE_KEY_1'], dataset: 'two-hnys-1'}
-      client2 = {writekey: ENV['HONEYCOMB_WRITE_KEY_2'], dataset: 'two-hnys-2'}
+      client2 = {writekey: ENV['HONEYCOMB_WRITE_KEY_2'], dataset: 'two-hnys'}
       @libhoney1 = Libhoney::Client.new(client1)
       @libhoney2 = Libhoney::Client.new(client2)
     end
