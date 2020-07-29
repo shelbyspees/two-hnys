@@ -1,20 +1,19 @@
 require 'bundler/inline'
 gemfile do
-  gem 'libhoney', source: 'https://rubygems.org'
+  gem 'honeycomb-beeline', source: 'https://rubygems.org'
   gem 'dotenv', source: 'http://rubygems.org'
 end
-require_relative 'splithoney'
+# require_relative 'splithoney'
 
 puts 'we are a go'
 
 Dotenv.load
 
-splithoney = SplitHoney::Client.new()
-builder = splithoney.builder({'builder': true})
+Honeycomb.configure do |config|
+  config.write_key = ENV['HONEYCOMB_WRITE_KEY_1']
+  config.dataset   = 'two-hnys-1'
+end
 
-event = builder.event()
-event.add_field('name', 'shelbytest')
-event.timestamp = Time.now()
-event.send()
-
-splithoney.close(true)
+Honeycomb.start_span(name: 'novatest') do |span|
+  sleep 1
+end
