@@ -1,14 +1,9 @@
-# The idea here is to set up an interface to Libhoney that can send to two teams
-# WIP
-
 module SplitHoney
-  class Client < Libhoney::NullClient  # implements the same interface as Libhoney::Client
-    def initialize(**args)
-      super # grab everything that happens in NullClient#initialize
-      client1 = {writekey: ENV['HONEYCOMB_WRITE_KEY_1'], dataset: 'two-hnys-1'}
-      client2 = {writekey: ENV['HONEYCOMB_WRITE_KEY_2'], dataset: 'two-hnys'}
-      @libhoney1 = Libhoney::Client.new(client1)
-      @libhoney2 = Libhoney::Client.new(client2)
+  class Client < Libhoney::NullClient # implements the same interface as Libhoney::Client
+    def initialize(config1:, config2:)
+      super() # grab everything that happens in NullClient#initialize, but with no args
+      @libhoney1 = Libhoney::Client.new(config1)
+      @libhoney2 = Libhoney::Client.new(config2)
     end
 
     def send_event(event)
@@ -23,9 +18,9 @@ module SplitHoney
       @libhoney2.send_event(event2)
     end
 
-    def close(should_close)
-      @libhoney1.close(should_close)
-      @libhoney2.close(should_close)
+    def close(drain = true)
+      @libhoney1.close(drain)
+      @libhoney2.close(drain)
     end
   end
 end
