@@ -1,12 +1,18 @@
 # two-hnys
 
+This time, we're using the Beeline's presend hook to update the second copy of the event to gain an additional field before sending it to the second dataset.
+
+At this point we've established that we can send the same event to two separate teams, so I won't worry about that, I'll just send to two datasets within the same team so I don't have to switch back and forth.
+
+Using the presend hook requires the Beeline config setup, so I can't use my previous Libhoney implementation of SplitHoney. So we might have to back up a bit.
+
 Milestones:
 - [x] Part 1: send event to one dataset within one team
-- [ ] Part 2: send same event to two datasets within the same team
-- [ ] Part 3: send same event to two datasets in two separate teams
+- [ ] Part 2: send same event to two datasets with same fields
+- [ ] Part 3: send same event to two datasets where one has a bonus field
 
 ## Part 1: send data to one dataset within one team
-Does it even work? Does Shelby even know how to get data into Honeycomb?
+This time we're using the Beeline instead of Libhoney.
 
 - [x] initialize Honeycomb configuration
 - [x] add dataset name
@@ -14,21 +20,15 @@ Does it even work? Does Shelby even know how to get data into Honeycomb?
 - [x] generate an event
 - [x] watch my event arrive in Honeycomb UI
 
-## Part 2: send same event to two datasets within the same team
+## Part 1.5 send same event to two datasets using Beeline and SplitHoney
 
-- [ ] add second writekey to dotenv
-- [ ] wrap Honeycomb class
-- [ ] watch event arrive in both datasets
+We can pass in SplitHoney as the Beeline config's `client` object and it'll send each event to both Libhoneys underneath. Unfortunately, this doesn't set us up to use the Beeline's presend hook.
 
-This is the trickiest part. Let's walk through what I'm trying to do.
+## Part 2: send same event to two datasets with same fields
+Using the Beeline requires different SplitHoney logic compared to the previous Libhoney version.
 
-- one SplitHoney
-- passes event data into two Honeycomb classes
-- should have the same interface as Honeycomb
-- but also should have two Honeycomb objects
+Still kinda figuring out the plan here, but we're gonna try inheriting the `Honeycomb::Client` object to see if we can extend the interface and use two client objects and configurations underneath.
 
-## Part 3: send same event to two datasets in two separate teams
+## Part 3: add bonus field to second copy of the event
 
-- [ ] update writekey in env vars for second team
-- [ ] (optional) update dataset name for second team
-- [ ] watch event arrive in both teams
+Using the presend hook in one of our two Honeycomb configuration objects.
