@@ -11,7 +11,7 @@ Dotenv.load
 
 hny_private = {
   writekey: ENV['HONEYCOMB_WRITE_KEY_1'],
-  dataset: 'two-hnys-1',
+  dataset: 'two-hnys-1'
 }
 
 hny_public = {
@@ -19,11 +19,13 @@ hny_public = {
   dataset: 'two-hnys-2'
 }
 
-Honeycomb.configure do |config|
-  # pass in SplitHoney client object in place of Libhoney
-  config.client = SplitHoney::Client.new(config1: hny_private, config2: hny_public)
-end
+config = Honeycomb::Configuration.new
+config.write_key = hny_private[:writekey]
+config.dataset = hny_private[:dataset]
 
-Honeycomb.start_span(name: 'novatest') do |_span|
+client = SplitHoney::Client.new(configuration: config)
+
+client.start_span(name: 'novatest') do
+  client.add_field('dog', 'nova') # TODO: `private: true`
   sleep 1
 end
