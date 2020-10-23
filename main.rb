@@ -9,21 +9,33 @@ puts 'we are a go'
 
 Dotenv.load
 
-hny_private = {
-  writekey: ENV['HONEYCOMB_WRITE_KEY_1'],
-  dataset: 'two-hnys-1'
-}
 
-hny_public = {
-  writekey: ENV['HONEYCOMB_WRITE_KEY_2'],
-  dataset: 'two-hnys-2'
-}
+Honeycomb.configure do |config|
 
-config = Honeycomb::Configuration.new
-config.write_key = hny_private[:writekey]
-config.dataset = hny_private[:dataset]
+  config.sample_hook do
+  end
 
-client = SplitHoney::Client.new(configuration: config)
+  config.presend_hook do
+    # unsanitized
+    Libhoney::Client.new
+    libhoney.send
+  
+    # sanitized
+    drop_field if sanitized
+  end
+end
+
+# private, unsanitized
+config1 = Honeycomb::Configuration.new
+config1.write_key = ENV['HONEYCOMB_WRITE_KEY_1']
+config1.dataset = 'two-hnys-1'
+
+# public, sanitized (eventually)
+config2 = Honeycomb::Configuration.new
+config2.write_key = ENV['HONEYCOMB_WRITE_KEY_2']
+config2.dataset = 'two-hnys-2'
+
+client = SplitHoney::Client.new(config1, config2)
 
 client.start_span(name: 'novatest') do
   client.add_field('dog', 'nova') # TODO: `private: true`
