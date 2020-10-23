@@ -3,41 +3,54 @@ gemfile do
   gem 'honeycomb-beeline', source: 'https://rubygems.org'
   gem 'dotenv', source: 'http://rubygems.org'
 end
-require_relative 'splithoney'
 
 puts 'we are a go'
 
-Dotenv.load
+api1 = ""
+api2 = ""
 
-
-Honeycomb.configure do |config|
-
-  config.sample_hook do
+# we probably don't even need multiple transmission objects
+# can just dup the event and change api key/dataset
+class MultiHoneyTransmission
+  def initialize
+    @inner = Libhoney::TransmissionClient.new
   end
 
-  config.presend_hook do
-    # unsanitized
-    Libhoney::Client.new
-    libhoney.send
-  
-    # sanitized
-    drop_field if sanitized
+  def add(event)
+    sanitized = sanitize event
+    sanitized.writekey = ""
+    sanitized.dataset = "two-hnys-2"
+
+    @inner.add(sanitized)
+    @inner.add(event)
+  end
+
+  def sanitize(event)
+    # deep-ish copy of the event
+    duplicate = event.dup.tap do |e|
+      # this is bad m'kay
+      e.instance_variable_set(:@data, event.data.dup)
+    end
+
+    # read in the yml file and blat any fields with those names in
+    # do some sanitizing
+    duplicate.add_field("this is a duplicate", "test")
+  end
+
+  def close(drain)
+    @inner.close(drain)
   end
 end
 
-# private, unsanitized
-config1 = Honeycomb::Configuration.new
-config1.write_key = ENV['HONEYCOMB_WRITE_KEY_1']
-config1.dataset = 'two-hnys-1'
+multi = MultiHoneyTransmission.new
 
-# public, sanitized (eventually)
-config2 = Honeycomb::Configuration.new
-config2.write_key = ENV['HONEYCOMB_WRITE_KEY_2']
-config2.dataset = 'two-hnys-2'
+blah = Libhoney::Client.new(writekey: api1, dataset: "two-hnys-1", transmission: multi)
 
-client = SplitHoney::Client.new(config1, config2)
+Honeycomb.configure do |config|
+  config.client = blah
+end
 
-client.start_span(name: 'novatest') do
-  client.add_field('dog', 'nova') # TODO: `private: true`
+Honeycomb.start_span(name: 'novatest') do
+  Honeycomb.add_field('dog', 'nova') # TODO: `private: true`
   sleep 1
 end
